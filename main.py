@@ -4,6 +4,9 @@ from openai import OpenAI #openai is the OpenAI Python SDK https://github.com/op
 
 import argparse #https://docs.python.org/3/library/argparse.html
 
+#The import line below has no impact on code function, and simply prevents the linter from complaining about 'messages = list_of_messages' because it makes the wrong assumption about... something about dictionaries being mutable, rather than what the OpenAI SDK is doing which is "The OpenAI SDK defines ChatCompletionMessageParam not as a generic dictionary, but as a union of specific typed dictionaries (TypedDict), such as ChatCompletionUserMessageParam."
+from openai.types.chat import ChatCompletionMessageParam
+
 #Get the OpenRouter API key from the environment variables.
 #They don't live here and the enviornment variables are not maintained by git to prevent exposing the API key (essentially the password/authentication)
 load_dotenv()
@@ -17,7 +20,6 @@ client = OpenAI(
     api_key = api_key,
 )
 
-
 parser = argparse.ArgumentParser(
     description="Simple Python CLI program for interacting with an LLM via OpenRouter."
 )
@@ -29,16 +31,15 @@ args = parser.parse_args()
 
 human_input = args.user_prompt
 
-#<response> becomes and instance of a custom Python class (specifically a data model created by the OpenAI library)
+list_of_messages: list[ChatCompletionMessageParam] = [
+    {"role": "user", "content": human_input}
+]
+
+#<response> becomes an instance of a custom Python class (specifically a data model created by the OpenAI library)
 #https://developers.openai.com/api/reference/python/resources/chat/subresources/completions/methods/create
 response = client.chat.completions.create(
     model = "openrouter/free",
-    messages=[
-        {
-            "role": "user",
-            "content": human_input,
-        }
-    ],
+    messages = list_of_messages
 )
 
 if response.usage is None:
