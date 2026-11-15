@@ -27,6 +27,16 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "user_prompt", type=str, help="User input which is sent into the LLM. Input should be inside quotation marks"
 )
+parser.add_argument(
+    "--verbose", "-v", action="store_true", help="Enables verbose output, showing token usage and model"
+)
+
+#argparse strips the leading dashes and uses the remaining string as the destination attribute name on the Namespace object it returns. So --verbose becomes args.verbose
+#This is controlled by a parameter called dest (short for "destination"), which argparse infers automatically from the first long option string (the one starting with --) if you don't set it explicitly. You can override it:
+#parser.add_argument("--verbose", action="store_true", dest="is_loud")
+#Then you'd access it as args.is_loud instead. But if you don't specify dest, argparse just takes the long flag name, strips the dashes, and uses that.
+#argparse looks for the first string starting with --. If it finds one, that becomes the basis for the attribute name (dashes stripped, internal dashes converted to underscores). If there's no -- option at all, it just uses the first option string given, dash stripped.
+
 args = parser.parse_args()
 
 human_input = args.user_prompt
@@ -50,8 +60,11 @@ input_tokens = response.usage.prompt_tokens
 output_tokens = response.usage.completion_tokens
 chosen_model = response.model
 
-print(f"User prompt: {human_input}")
-print(f"Model used: {chosen_model}")
-print(f"Prompt tokens: {input_tokens}")
-print(f"Response tokens: {output_tokens}")
-print(f"Bot response:\n{robot_response}")
+if args.verbose:
+    print(f"User prompt: {human_input}")
+    print(f"Model used: {chosen_model}")
+    print(f"Prompt tokens: {input_tokens}")
+    print(f"Response tokens: {output_tokens}")
+    print(f"Bot response:\n{robot_response}")
+else:
+    print(f"Bot response:\n{robot_response}")
