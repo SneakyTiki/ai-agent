@@ -1,0 +1,1 @@
+MAX_CHARS = 10000 #do not read more than this many characters of a file
